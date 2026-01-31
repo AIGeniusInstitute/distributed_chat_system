@@ -13,9 +13,9 @@ services:
     ports:
       - "8765:8765"
     environment:
-      - REDIS_URL=redis://redis:6379
-      - SERVER_ID=node1
-      - WEBSOCKET_PORT=8765
+      - CHAT_REDIS_URL=redis://redis:6379
+      - CHAT_SERVER_ID=node1
+      - CHAT_WEBSOCKET_PORT=8765
     depends_on:
       - redis
     restart: unless-stopped
@@ -25,9 +25,9 @@ services:
     ports:
       - "8766:8766"
     environment:
-      - REDIS_URL=redis://redis:6379
-      - SERVER_ID=node2
-      - WEBSOCKET_PORT=8766
+      - CHAT_REDIS_URL=redis://redis:6379
+      - CHAT_SERVER_ID=node2
+      - CHAT_WEBSOCKET_PORT=8766
     depends_on:
       - redis
     restart: unless-stopped
@@ -37,9 +37,9 @@ services:
     ports:
       - "8767:8767"
     environment:
-      - REDIS_URL=redis://redis:6379
-      - SERVER_ID=node3
-      - WEBSOCKET_PORT=8767
+      - CHAT_REDIS_URL=redis://redis:6379
+      - CHAT_SERVER_ID=node3
+      - CHAT_WEBSOCKET_PORT=8767
     depends_on:
       - redis
     restart: unless-stopped

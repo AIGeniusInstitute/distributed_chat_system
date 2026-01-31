@@ -1,10 +1,12 @@
 # 分布式WebSocket对话系统依赖
 
 ## 核心依赖
-langgraph-checkpoint-redis>=0.0.2
+langgraph>=0.2.0
 redis>=5.2.1
 websockets>=12.0
 aiohttp>=3.9.0
+
+langgraph-checkpoint-redis
 
 ## 开发依赖
 pytest>=7.4.0
