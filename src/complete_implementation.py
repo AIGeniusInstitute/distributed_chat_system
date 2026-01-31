@@ -61,7 +61,6 @@ class ConversationState(TypedDict):
     context: Dict[str, Any]
     metadata: Dict[str, Any]
     current_node: str
-    checkpoint_id: Optional[str]
 
 class ServerConfig(TypedDict):
     """服务器配置类型"""
