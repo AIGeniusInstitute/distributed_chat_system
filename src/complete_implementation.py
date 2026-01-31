@@ -253,10 +253,9 @@ class StateManager:
                 "message_count": 0,
                 "recovery_count": 0
             },
-            "current_node": "start",
-            "checkpoint_id": None
+            "current_node": "start"
         }
-        
+
         # 保存初始检查点
         config = {
             "configurable": {
@@ -264,15 +263,13 @@ class StateManager:
                 "checkpoint_ns": "conversation"
             }
         }
-        
-        checkpoint_id = await self.checkpointer.put(config, state)
-        state["checkpoint_id"] = checkpoint_id
-        
+
+        await self.checkpointer.put(config, state)
+
         # 在Redis中记录会话
         session_info = {
             "device_id": device_id,
             "created_at": state["metadata"]["created_at"],
-            "checkpoint_id": checkpoint_id,
             "server_id": "unknown"  # 将在连接时更新
         }
         
@@ -316,12 +313,9 @@ class StateManager:
         # 更新元数据
         state["metadata"]["last_active"] = datetime.now().isoformat()
         state["metadata"]["message_count"] = len(state["messages"])
-        
+
         # 保存检查点
-        checkpoint_id = await self.checkpointer.put(config, state)
-        state["checkpoint_id"] = checkpoint_id
-        
-        return checkpoint_id
+        await self.checkpointer.put(config, state)
         
     async def add_message_to_session(self, user_id: str, session_id: str,
                                    message: Dict[str, Any]) -> ConversationState:
