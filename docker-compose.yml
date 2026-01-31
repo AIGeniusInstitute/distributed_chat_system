@@ -1,0 +1,60 @@
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+
+  chat-node1:
+    build: .
+    ports:
+      - "8765:8765"
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - SERVER_ID=node1
+      - WEBSOCKET_PORT=8765
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  chat-node2:
+    build: .
+    ports:
+      - "8766:8766"
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - SERVER_ID=node2
+      - WEBSOCKET_PORT=8766
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  chat-node3:
+    build: .
+    ports:
+      - "8767:8767"
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - SERVER_ID=node3
+      - WEBSOCKET_PORT=8767
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - chat-node1
+      - chat-node2
+      - chat-node3
+    restart: unless-stopped
+
+volumes:
+  redis_data:
