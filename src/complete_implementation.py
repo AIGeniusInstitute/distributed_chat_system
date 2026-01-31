@@ -792,7 +792,8 @@ class WebSocketServer:
         self.server_id = config["server_id"]
         
         # 组件
-        self.redis_client = None
+        self.redis_client = None  # 用于一般操作（字符串）
+        self.redis_bytes_client = None  # 用于 AsyncRedisSaver（bytes）
         self.checkpointer = None
         self.state_manager = None
         self.message_broker = None
@@ -807,11 +808,20 @@ class WebSocketServer:
         """初始化系统组件"""
         logger.info("初始化系统组件...")
         
-        # 初始化Redis连接
+        # 初始化Redis连接（用于一般操作）
         self.redis_client = await Redis.from_url(
             self.config["redis_url"],
             max_connections=self.config["redis_max_connections"],
             decode_responses=True,
+            socket_keepalive=True,
+            retry_on_timeout=True
+        )
+
+        # 初始化Redis连接（用于AsyncRedisSaver，需要bytes）
+        self.redis_bytes_client = await Redis.from_url(
+            self.config["redis_url"],
+            max_connections=self.config["redis_max_connections"],
+            decode_responses=False,  # AsyncRedisSaver需要bytes
             socket_keepalive=True,
             retry_on_timeout=True
         )
@@ -826,13 +836,9 @@ class WebSocketServer:
             
         # 初始化RedisSaver
         self.checkpointer = AsyncRedisSaver(
-            connection=self.redis_client,
-            ttl_config={
-                "default_ttl": self.config["checkpoint_ttl"],
-                "refresh_on_read": True
-            }
+            redis_client=self.redis_bytes_client
         )
-        await self.checkpointer.setup()
+        await self.checkpointer.asetup()
         logger.info("RedisSaver初始化完成")
         
         # 初始化状态管理器
@@ -1041,6 +1047,8 @@ class WebSocketServer:
         # 关闭Redis连接
         if self.redis_client:
             await self.redis_client.close()
+        if self.redis_bytes_client:
+            await self.redis_bytes_client.close()
             
         logger.info("服务器已关闭")
 
